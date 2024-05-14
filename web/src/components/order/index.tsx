@@ -1,6 +1,6 @@
 import { Card, Col, Row } from "antd";
 import { FillOrders } from "./FillOrders";
-import { CreateOrders } from "./CreateOrders";
+import { MyCreateOrders } from "./MyCreateOrders";
 import { OtherOrders } from "./OtherOrders";
 import { useOrderStore } from "@/stores/useOrderStore";
 import {
@@ -15,7 +15,6 @@ export const Order = () => {
   useWatchExchangeOrderEvent({
     fromBlock: 0n,
     onLogs: (logs) => {
-      console.log(logs);
       setOrders({ allOrders: logs });
     },
   });
@@ -48,7 +47,7 @@ export const Order = () => {
       </Col>
       <Col span={8}>
         <Card bordered={false} title="创建的订单(交易中)">
-          <CreateOrders />
+          <MyCreateOrders />
         </Card>
       </Col>
       <Col span={8}>

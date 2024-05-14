@@ -10,6 +10,7 @@ import {
   SelectProps,
 } from "antd";
 import { useEffect, useState } from "react";
+import { parseEther } from "viem";
 import { useWaitForTransactionReceipt } from "wagmi";
 
 export const tokenOptions: SelectProps["options"] = [
@@ -85,11 +86,11 @@ export const CreateOrder = () => {
             args: [
               {
                 token: res.getToken,
-                amount: BigInt(res.getAmount),
+                amount: parseEther(String(res.getAmount)),
               },
               {
                 token: res.giveToken,
-                amount: BigInt(res.giveAmount),
+                amount: parseEther(String(res.giveAmount)),
               },
             ],
           });

@@ -1,12 +1,24 @@
+import { exchangeAbi } from "@/generated";
+import { GetLogsReturnType, ExtractAbiItem } from "viem";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
+export type Orders = GetLogsReturnType<
+  ExtractAbiItem<typeof exchangeAbi, "Order">
+>;
+export type Trades = GetLogsReturnType<
+  ExtractAbiItem<typeof exchangeAbi, "Trade">
+>;
+export type Cancels = GetLogsReturnType<
+  ExtractAbiItem<typeof exchangeAbi, "Cancel">
+>;
+
 type OrderStoreState = {
   orders: {
-    allOrders: any[];
-    fillOrders: any[];
-    cancelOrders: any[];
+    allOrders: Orders;
+    fillOrders: Trades;
+    cancelOrders: Cancels;
   };
   setOrders: (orders: Partial<OrderStoreState["orders"]>) => void;
 };

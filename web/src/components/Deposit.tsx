@@ -68,7 +68,7 @@ export const Deposit = () => {
       const [shouldApprove, approveAmount] = isOverflowedBalance(
         parseEther(String(res.amount))
       );
-      console.log(shouldApprove, approveAmount);
+
       if (shouldApprove) {
         await modal.confirm({
           title: "是否授权",

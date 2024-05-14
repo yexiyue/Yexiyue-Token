@@ -1,5 +1,5 @@
-import { useWriteExchangeFillOrder } from "@/generated";
-import { ETHER_ADDRESS, useBalances } from "@/hooks/useBalances";
+import { useWriteExchangeCancelOrder } from "@/generated";
+import { ETHER_ADDRESS } from "@/hooks/useBalances";
 import { useOrders } from "@/hooks/useOrders";
 import { Orders } from "@/stores/useOrderStore";
 import { App, Button, Popconfirm, Space, Table, Typography } from "antd";
@@ -9,23 +9,21 @@ import { useMemo } from "react";
 import { formatEther } from "viem";
 import { useAccount } from "wagmi";
 
-export const OtherOrders = () => {
+export const MyCreateOrders = () => {
   const { address } = useAccount();
   if (!address) return null;
   const { ordersInTransactionsData } = useOrders();
-  const otherOrdersData = useMemo(() => {
+
+  const myOrdersData = useMemo(() => {
     return ordersInTransactionsData
-      .filter((order) => order.args.user !== address)
+      .filter((order) => order.args.user === address)
       .map((order) => {
         return order.args;
       });
   }, [ordersInTransactionsData, address]);
 
   const { message } = App.useApp();
-  const { writeContractAsync } = useWriteExchangeFillOrder();
-  const { invalidateQueries } = useBalances({
-    address,
-  });
+  const { writeContractAsync } = useWriteExchangeCancelOrder();
   const columns: ColumnsType<Orders[number]["args"]> = [
     {
       title: "时间",
@@ -52,6 +50,24 @@ export const OtherOrders = () => {
       render: (_, record) => {
         return (
           <Typography.Text
+            type="success"
+            ellipsis={{
+              tooltip: { title: formatEther(record.getToken?.amount!) },
+            }}
+          >
+            {formatEther(record.getToken?.amount!)}{" "}
+            {record.getToken?.token === ETHER_ADDRESS ? "ETH" : "YXT"}
+          </Typography.Text>
+        );
+      },
+      sorter: (a, b) => Number(a.getToken?.amount) - Number(b.getToken?.amount),
+    },
+    {
+      title: "支出",
+      width: 25,
+      render: (_, record) => {
+        return (
+          <Typography.Text
             type="warning"
             ellipsis={{
               tooltip: { title: formatEther(record.giveToken?.amount!) },
@@ -66,37 +82,18 @@ export const OtherOrders = () => {
         Number(a.giveToken?.amount) - Number(b.giveToken?.amount),
     },
     {
-      title: "支出",
-      width: 25,
-      render: (_, record) => {
-        return (
-          <Typography.Text
-            type="success"
-            ellipsis={{
-              tooltip: { title: formatEther(record.getToken?.amount!) },
-            }}
-          >
-            {formatEther(record.getToken?.amount!)}{" "}
-            {record.getToken?.token === ETHER_ADDRESS ? "ETH" : "YXT"}
-          </Typography.Text>
-        );
-      },
-      sorter: (a, b) => Number(a.getToken?.amount) - Number(b.getToken?.amount),
-    },
-
-    {
       title: "操作",
       width: 25,
       render: (_, record) => {
         return (
           <Space align="center">
             <Popconfirm
-              title="是否买入该订单？"
-              description="您确定买入该订单吗?"
+              title="是否取消该订单？"
+              description="您确定取消该订单吗?"
               onConfirm={async () => {
                 try {
                   message.open({
-                    content: "买入订单中...",
+                    content: "取消订单中...",
                     key: `cancel-${record.id}`,
                     type: "loading",
                     duration: 0,
@@ -104,16 +101,15 @@ export const OtherOrders = () => {
                   await writeContractAsync({
                     args: [record.id!],
                   });
-                  invalidateQueries();
                   message.open({
-                    content: "买入订单成功",
+                    content: "取消订单成功",
                     key: `cancel-${record.id}`,
                     type: "success",
                     duration: 2,
                   });
                 } catch (error) {
                   message.open({
-                    content: "买入订单失败",
+                    content: "取消订单失败",
                     key: `cancel-${record.id}`,
                     type: "error",
                     duration: 2,
@@ -123,9 +119,7 @@ export const OtherOrders = () => {
               okText="确定"
               cancelText="取消"
             >
-              <Button type="primary" size="small">
-                买入
-              </Button>
+              <Button size="small">取消</Button>
             </Popconfirm>
           </Space>
         );
@@ -136,7 +130,7 @@ export const OtherOrders = () => {
     <Table<Orders[number]["args"]>
       rowKey={(record) => record.id!}
       columns={columns}
-      dataSource={otherOrdersData}
+      dataSource={myOrdersData}
     />
   );
 };
