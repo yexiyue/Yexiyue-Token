@@ -3,7 +3,7 @@ import { hardhat, react } from "@wagmi/cli/plugins";
 import address from "./ignition/deployments/chain-31337/deployed_addresses.json";
 
 export default defineConfig({
-  out: "web/app/generated.ts",
+  out: "web/src/generated.ts",
   plugins: [
     hardhat({
       project: "./",

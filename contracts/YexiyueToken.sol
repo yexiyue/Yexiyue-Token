@@ -63,7 +63,7 @@ contract YexiyueToken {
         uint256 _value
     ) public returns (bool success) {
         require(_spender != address(0), "Invalid spender address");
-        // 应该是要求_value大于0，原注释有误。
+        // 要求_value大于0
         require(_value > 0, "Approval value must be greater than 0");
 
         allowance[msg.sender][_spender] = _value;
